@@ -111,9 +111,6 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
         audio.src = "./sounds/darkness.mp3";
         audio.playbackRate = 1;
         audio.play();
-        // audio.volume = 0.8;
-        // audio.loop = true;
-        // audio.play();
     }, []);
 
     useEffect(() => {
@@ -214,13 +211,12 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
         setIsGameStarted(false);
         setYouWin(true);
         setGameOver(false);
-        // wingameSound.play();
-        // audio.pause();
-        // screamAudio.pause();
+        audio.pause();
+        screamAudio.pause();
     }
     const gameOver = () => {
-        // audio.pause();
-        // screamAudio.pause();
+        audio.pause();
+        screamAudio.pause();
         setGameOver(true);
         setYouWin(false);
         setIsGameStarted(false);
