@@ -8,8 +8,12 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
     const [personLife, setPersonLife] = useState(3);
     const [pickedScores, setPickedScores] = useState(0);
     const [pickedKey, setPickedKey] = useState(0);
+    const [time, setTime] = useState(0);
     const [isKeyPressed, setIsKeyPressed] = useState({ pressed: null, key: null });
-    const screamAudio = new Audio();
+    const [screamAudio, setScreamAudio] = useState(new Audio());
+    // const [audio, setAudio] = useState(new Audio("./sounds/darkness.mp3"));
+    // const [wingameSound, setWingameSound] = useState(new Audio("./sounds/wingame.wav"));
+    const [audio, setAudio] = useState(new Audio());
 
     const [phisics, setPhisics] = useState({
         moveSpeed: 1,
@@ -101,13 +105,15 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
         width: 1000,
         height: 500,
     }
-    let audio = new Audio();
+
     useEffect(() => {
         setPerson(mainObject);
         audio.src = "./sounds/darkness.mp3";
-        audio.volume = 0.8;
-        audio.loop = true;
+        audio.playbackRate = 1;
         audio.play();
+        // audio.volume = 0.8;
+        // audio.loop = true;
+        // audio.play();
     }, []);
 
     useEffect(() => {
@@ -129,6 +135,14 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
         }
     }, []);
 
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setTime(time + 1);
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [time]);
 
     const [int, setInt] = useState(0);
     useEffect(() => {
@@ -194,14 +208,19 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
         }
     }, [personLife])
 
+
+
     const winGame = () => {
         setIsGameStarted(false);
         setYouWin(true);
         setGameOver(false);
-        audio.pause();
-        screamAudio.pause();
+        // wingameSound.play();
+        // audio.pause();
+        // screamAudio.pause();
     }
     const gameOver = () => {
+        // audio.pause();
+        // screamAudio.pause();
         setGameOver(true);
         setYouWin(false);
         setIsGameStarted(false);
@@ -251,7 +270,7 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
             const scoreRight = parseInt(score.style.width) + parseInt(score.style.left);
             const scoreLeft = parseInt(score.style.left);
             const scoreTop = parseInt(score.style.top);
-            if ((_person.top > scoreTop && _person.top < scoreBottom) && (_person.left <= scoreRight && _person.left + _person.width >= scoreLeft)) {
+            if ((_person.top + _person.height > scoreTop && _person.top < scoreBottom) && (_person.left <= scoreRight && _person.left + _person.width >= scoreLeft)) {
                 pickUpScore(score.id);
             }
         })
@@ -262,7 +281,7 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
             const keyRight = parseInt(key.style.width) + parseInt(key.style.left);
             const keyLeft = parseInt(key.style.left);
             const keyTop = parseInt(key.style.top);
-            if ((_person.top > keyTop && _person.top < keyBottom) && (_person.left <= keyRight && _person.left + _person.width >= keyLeft)) {
+            if ((_person.top + _person.height > keyTop && _person.top < keyBottom) && (_person.left <= keyRight && _person.left + _person.width >= keyLeft)) {
                 pickUpKey(key.id);
             }
         })
@@ -316,7 +335,7 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
             const scoreRight = parseInt(score.style.width) + parseInt(score.style.left);
             const scoreLeft = parseInt(score.style.left);
             const scoreTop = parseInt(score.style.top);
-            if ((_person.top > scoreTop && _person.top < scoreBottom) && (_person.left <= scoreRight && _person.left + _person.width >= scoreLeft)) {
+            if ((_person.top + _person.height > scoreTop && _person.top < scoreBottom) && (_person.left <= scoreRight && _person.left + _person.width >= scoreLeft)) {
                 pickUpScore(score.id);
             }
         })
@@ -327,7 +346,7 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
             const keyRight = parseInt(key.style.width) + parseInt(key.style.left);
             const keyLeft = parseInt(key.style.left);
             const keyTop = parseInt(key.style.top);
-            if ((_person.top > keyTop && _person.top < keyBottom) && (_person.left <= keyRight && _person.left + _person.width >= keyLeft)) {
+            if ((_person.top + _person.height > keyTop && _person.top < keyBottom) && (_person.left <= keyRight && _person.left + _person.width >= keyLeft)) {
                 pickUpKey(key.id);
             }
         })
@@ -383,7 +402,7 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
             const scoreRight = parseInt(score.style.width) + parseInt(score.style.left);
             const scoreLeft = parseInt(score.style.left);
             const scoreTop = parseInt(score.style.top);
-            if ((_person.top > scoreTop && _person.top < scoreBottom) && (_person.left <= scoreRight && _person.left + _person.width / 2 >= scoreLeft)) {
+            if ((_person.top + _person.height > scoreTop && _person.top < scoreBottom) && (_person.left <= scoreRight && _person.left >= scoreLeft)) {
                 pickUpScore(score.id);
             }
         })
@@ -447,7 +466,7 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
             const scoreRight = parseInt(score.style.width) + parseInt(score.style.left);
             const scoreLeft = parseInt(score.style.left);
             const scoreTop = parseInt(score.style.top);
-            if ((_person.top > scoreTop && _person.top < scoreBottom) && (_person.left <= scoreRight && _person.left + _person.width / 2 >= scoreLeft)) {
+            if ((_person.top + _person.height > scoreTop && _person.top < scoreBottom) && (_person.left <= scoreRight && _person.left >= scoreLeft)) {
                 pickUpScore(score.id);
             }
         })
@@ -467,7 +486,7 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
             const keyRight = parseInt(key.style.width) + parseInt(key.style.left);
             const keyLeft = parseInt(key.style.left);
             const keyTop = parseInt(key.style.top);
-            if ((_person.top > keyTop && _person.top < keyBottom) && (_person.left <= keyRight && _person.left + _person.width / 2 >= keyLeft)) {
+            if ((_person.top + _person.height > keyTop && _person.top < keyBottom) && (_person.left <= keyRight && _person.left + _person.width / 2 >= keyLeft)) {
                 pickUpKey(key.id);
             }
         })
@@ -512,7 +531,7 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
             const scoreRight = parseInt(score.style.width) + parseInt(score.style.left);
             const scoreLeft = parseInt(score.style.left);
             const scoreTop = parseInt(score.style.top);
-            if (((_person.left > scoreLeft && _person.left < scoreRight) && (_person.top <= scoreBottom && _person.top > scoreTop))) {
+            if (((_person.left > scoreLeft && _person.left < scoreRight) && (_person.top <= scoreBottom && _person.top + _person.height > scoreTop))) {
                 pickUpScore(score.id);
             }
         })
@@ -586,7 +605,7 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
             const scoreRight = parseInt(score.style.width) + parseInt(score.style.left);
             const scoreLeft = parseInt(score.style.left);
             const scoreTop = parseInt(score.style.top);
-            if (((_person.left > scoreLeft && _person.left < scoreRight) && (_person.top <= scoreBottom && _person.top > scoreTop))) {
+            if (((_person.left > scoreLeft && _person.left < scoreRight) && (_person.top <= scoreBottom && _person.top + _person.height > scoreTop))) {
                 pickUpScore(score.id);
             }
         })
@@ -675,7 +694,7 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
             const keyRight = parseInt(key.style.width) + parseInt(key.style.left);
             const keyLeft = parseInt(key.style.left);
             const keyTop = parseInt(key.style.top);
-            if (((_person.left > keyLeft && _person.left < keyRight) && (_person.top <= keyBottom && _person.top + _person.width > keyTop))) {
+            if (((_person.left + _person.width > keyLeft && _person.left < keyRight) && (_person.top <= keyBottom && _person.top + _person.width > keyTop))) {
                 pickUpKey(key.id);
             }
         })
@@ -729,7 +748,7 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
             const keyRight = parseInt(key.style.width) + parseInt(key.style.left);
             const keyLeft = parseInt(key.style.left);
             const keyTop = parseInt(key.style.top);
-            if (((_person.left > keyLeft && _person.left < keyRight) && (_person.top <= keyBottom && _person.top + _person.width > keyTop))) {
+            if (((_person.left + _person.width > keyLeft && _person.left < keyRight) && (_person.top <= keyBottom && _person.top + _person.width > keyTop))) {
                 pickUpKey(key.id);
             }
         })
@@ -788,7 +807,7 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
     return (
         <>
             <div className="game_info">
-                <div className="life_container">
+                <div className="life_container" >
                     {Array.from({ length: 4 }, (v, k) => {
                         return (
                             <div key={k} className="life_block" style={{ color: k + 1 <= personLife ? "#cc2a2a" : "#151515" }}>
@@ -814,6 +833,9 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
                             </div>
                         )
                     })}
+                </div>
+                <div className="time_container">
+                    {`${Math.floor(time / 60).toString().padStart(2, 0)}:${(time % 60).toString().padStart(2, 0)}`}
                 </div>
             </div>
             <div className="board_container">

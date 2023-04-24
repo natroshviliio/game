@@ -187,6 +187,20 @@ body {
   align-items: center;
   justify-content: center;
 }
+.game_info .time_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 30px;
+  padding: 10px 20px;
+  -moz-column-gap: 1rem;
+       column-gap: 1rem;
+  border-radius: 10px;
+  box-shadow: inset -3px -3px 6px #283a46, inset 4px 4px 6px #0c1318;
+  font-family: "BPG Banner ExtraSquare Caps", sans-serif;
+  color: #425b6d;
+  margin-left: auto;
+}
 
 .launch {
   width: 100vw;
@@ -203,13 +217,13 @@ body {
 }
 .launch .introduction .introduction_border {
   width: 75%;
-  height: 550px;
+  height: 600px;
   border-radius: 10px;
   border: 1px solid #304555;
   padding: 10px;
   overflow-y: auto;
   font-family: "BPG Banner ExtraSquare Caps", sans-serif;
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: #415c70;
 }
 .launch .introduction .introduction_border .introduction_border_image {
@@ -268,17 +282,24 @@ body {
 .youwin .youwin_dialog_container {
   width: 95%;
   height: 90vh;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
   padding: 10px;
   justify-content: center;
+  align-items: center;
   box-sizing: border-box;
+  margin-left: auto;
+  margin-right: auto;
 }
 .youwin .youwin_dialog_container .youwin_dialog {
   width: 300px;
   height: 230px;
   padding: 10px;
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background-color: #0a1015;
   box-sizing: border-box;
   border-radius: 10px;
@@ -318,6 +339,7 @@ body {
   width: 80px;
   height: 80px;
   margin-right: 20px;
+  margin-bottom: 20px;
   background-color: #134c96;
   box-shadow: 0 0 7px 4px #346fbc;
   border-radius: 50%;
@@ -382,9 +404,11 @@ body {
 @keyframes animateDialog {
   from {
     opacity: 0;
+    margin-left: 100px;
   }
   to {
     opacity: 1;
+    margin-right: 0px;
   }
 }
 @keyframes animScore {
