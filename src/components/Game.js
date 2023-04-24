@@ -819,7 +819,7 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
             <div className="board_container">
                 <div className='board' style={boardObject}>
                     <div id='person' className="main_object" style={person && person}>
-                        {/* <div className="shadow"></div> */}
+                        <div className="shadow"></div>
                     </div>
                     <div className="wall" style={{ width: 150, height: 230, top: 0, left: 0 }}><div className="wall_img"></div></div>
                     <div className="wall" style={{ width: 30, height: 500, top: 0, left: 0 }}><div className="wall_img"></div></div>
