@@ -1,0 +1,715 @@
+*,
+::before,
+::after {
+  margin: 0;
+  padding: 0;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+}
+
+html,
+body {
+  overflow: hidden;
+}
+
+.board_container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #1a2731;
+}
+.board_container .board {
+  width: 700px;
+  height: 500px;
+  margin-top: 100px;
+  border: 1px solid #1a2731;
+  display: flex;
+  border-radius: 5px;
+  background-color: #1a2731;
+  box-shadow: -5px -5px 20px #2d404e, 5px 5px 20px #0c1318;
+  position: relative;
+  overflow: hidden;
+}
+.board_container .board .main_object {
+  background-color: #f4dc57;
+  box-shadow: 0 0 7px 4px #fdef9f;
+  position: absolute;
+  border-radius: 50%;
+  animation-name: shiningSoul;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-delay: linear;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+.board_container .board .main_object .shadow {
+  --shadowPercent: 0%;
+  width: 200vw;
+  height: 200vw;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.05), #131d25 var(--shadowPercent));
+  position: absolute;
+  animation-name: shadowAnim;
+  animation-duration: 10s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+.board_container .board .wall {
+  background-color: #131d25;
+  position: absolute;
+}
+.board_container .board .wall_img {
+  width: 100%;
+  height: 100%;
+  background-image: url("../../public/images/wall.jpg");
+  background-repeat: repeat;
+  background-size: contain;
+  opacity: 0.2;
+}
+.board_container .board .score {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.7rem;
+  color: #28c037;
+  filter: drop-shadow(0 0 5px #51e35f);
+  position: absolute;
+  animation-name: animScore;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+.board_container .board .life {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: #cc2a2a;
+  filter: drop-shadow(0 0 5px #e74b4b);
+  position: absolute;
+  animation-name: animLife;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+.board_container .board .key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.7rem;
+  color: #ffd000;
+  filter: drop-shadow(0 0 5px #ffdd47);
+  position: absolute;
+  animation-name: animKey;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+.board_container .board .door {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: #7e4310;
+  position: absolute;
+  filter: drop-shadow(0 0 5px rgba(192, 124, 64, 0.4274509804));
+}
+
+.game_info {
+  width: 1000px;
+  height: 100px;
+  background-color: #1a2731;
+  box-shadow: -5px -5px 9px #2d404e, 5px 5px 9px #0c1318;
+  border-radius: 5px;
+  position: absolute;
+  display: flex;
+  gap: 1.8rem;
+  left: 50%;
+  top: 10px;
+  transform: translateX(-50%);
+  align-items: center;
+  padding: 5px 20px;
+  box-sizing: border-box;
+}
+.game_info .life_container {
+  display: grid;
+  height: 30px;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 10px;
+  -moz-column-gap: 1rem;
+       column-gap: 1rem;
+  border-radius: 10px;
+  box-shadow: -5px -5px 9px #2d404e, 5px 5px 9px #0c1318;
+}
+.game_info .life_container .life_block {
+  font-size: 1.5rem;
+  color: #151515;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.game_info .score_container {
+  display: grid;
+  height: 30px;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 10px;
+  -moz-column-gap: 1rem;
+       column-gap: 1rem;
+  border-radius: 10px;
+  box-shadow: -5px -5px 9px #2d404e, 5px 5px 9px #0c1318;
+}
+.game_info .score_container .score_block {
+  font-size: 1.5rem;
+  color: #151515;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.game_info .key_container {
+  display: grid;
+  height: 30px;
+  grid-template-columns: repeat(1, 1fr);
+  padding: 10px;
+  -moz-column-gap: 1rem;
+       column-gap: 1rem;
+  border-radius: 10px;
+  box-shadow: -5px -5px 9px #2d404e, 5px 5px 9px #0c1318;
+}
+.game_info .key_container .key_block {
+  font-size: 1.5rem;
+  color: #151515;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.launch {
+  width: 100vw;
+  height: 100vh;
+  background-color: #131d25;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+.launch .introduction {
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+.launch .introduction .introduction_border {
+  width: 75%;
+  height: 550px;
+  border-radius: 10px;
+  border: 1px solid #304555;
+  padding: 10px;
+  overflow-y: auto;
+  font-family: "BPG Banner ExtraSquare Caps", sans-serif;
+  font-size: 1.2rem;
+  color: #415c70;
+}
+.launch .introduction .introduction_border .introduction_border_image {
+  width: 35%;
+  height: 30%;
+  margin-right: 15px;
+  background-image: url("../../public/images/deathangel.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  float: left;
+}
+.launch .introduction .introduction_border::-webkit-scrollbar {
+  display: none;
+}
+.launch .carrier {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+.launch .carrier .carrier_button {
+  padding: 2rem 4rem;
+  background-color: #0c1318;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 2rem;
+  font-family: "BPG Banner ExtraSquare Caps", sans-serif;
+  cursor: pointer;
+  letter-spacing: 2px;
+  transition: 0.1s;
+}
+.launch .carrier .carrier_button:hover {
+  background-color: #1b2832;
+}
+.launch .carrier .carrier_button:active {
+  background-color: #0a1015;
+  margin-top: 5px;
+  margin-left: 5px;
+}
+
+.youwin {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #131d25;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.youwin .youwin_dialog_container {
+  width: 95%;
+  height: 90vh;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  padding: 10px;
+  justify-content: center;
+  box-sizing: border-box;
+}
+.youwin .youwin_dialog_container .youwin_dialog {
+  width: 300px;
+  height: 230px;
+  padding: 10px;
+  background-color: #0a1015;
+  box-sizing: border-box;
+  border-radius: 10px;
+  border: 1px solid #2d404e;
+  font-family: "BPG Banner ExtraSquare Caps", sans-serif;
+  color: #304555;
+  animation-name: animateDialog;
+  animation-duration: 3s;
+  animation-delay: linear;
+  transition: 0.3s;
+}
+.youwin .youwin_dialog_container .youwin_dialog .youwin_death {
+  width: 120px;
+  height: 120px;
+  margin-right: 15px;
+  background-image: url("../../public/images/deathangel.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  float: left;
+  font-size: 1rem;
+  color: white;
+}
+.youwin .youwin_dialog_container .youwin_dialog .youwin_she {
+  width: 80px;
+  height: 80px;
+  margin-right: 20px;
+  background-color: #f4dc57;
+  box-shadow: 0 0 7px 4px #fdef9f;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  float: left;
+}
+.youwin .youwin_dialog_container .youwin_dialog .youwin_he {
+  width: 80px;
+  height: 80px;
+  margin-right: 20px;
+  background-color: #134c96;
+  box-shadow: 0 0 7px 4px #346fbc;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  float: left;
+}
+.youwin .screenwin {
+  width: 95%;
+  height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2d404e;
+  font-size: 15rem;
+  animation-name: screenWinAnim;
+  animation-duration: 5s;
+  animation-delay: linear;
+}
+
+.gameover {
+  width: 100%;
+  height: 100vh;
+  background-color: #131d25;
+  color: #304555;
+  font-size: 13rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: "BPG Banner ExtraSquare Caps", sans-serif;
+}
+.gameover .gameover_button {
+  padding: 2rem 4rem;
+  font-size: 2rem;
+  color: #304555;
+  border: 0;
+  background-color: #131d25;
+  cursor: pointer;
+}
+
+@keyframes screenWinAnim {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes shiningSoul {
+  from {
+    box-shadow: 0 0 3px 4px #fdef9f;
+  }
+  to {
+    box-shadow: 0 0 7px 4px #fdef9f;
+  }
+}
+@keyframes animateDialog {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes animScore {
+  from {
+    filter: drop-shadow(0 0 5px #51e35f);
+  }
+  to {
+    filter: drop-shadow(0 0 1px #51e35f);
+  }
+}
+@keyframes animKey {
+  from {
+    filter: drop-shadow(0 0 5px #ffdd47);
+  }
+  to {
+    filter: drop-shadow(0 0 1px #ffdd47);
+  }
+}
+@keyframes animLife {
+  from {
+    filter: drop-shadow(0 0 5px #e74b4b);
+  }
+  to {
+    filter: drop-shadow(0 0 1px #e74b4b);
+  }
+}
+@keyframes shadowAnim {
+  100% {
+    --shadowPercent: 5%;
+  }
+  99% {
+    --shadowPercent: 5%;
+  }
+  98% {
+    --shadowPercent: 5%;
+  }
+  97% {
+    --shadowPercent: 5%;
+  }
+  96% {
+    --shadowPercent: 5%;
+  }
+  95% {
+    --shadowPercent: 5%;
+  }
+  94% {
+    --shadowPercent: 5%;
+  }
+  93% {
+    --shadowPercent: 5%;
+  }
+  92% {
+    --shadowPercent: 5%;
+  }
+  91% {
+    --shadowPercent: 5%;
+  }
+  90% {
+    --shadowPercent: 5%;
+  }
+  89% {
+    --shadowPercent: 5%;
+  }
+  88% {
+    --shadowPercent: 5%;
+  }
+  87% {
+    --shadowPercent: 5%;
+  }
+  86% {
+    --shadowPercent: 5%;
+  }
+  85% {
+    --shadowPercent: 5%;
+  }
+  84% {
+    --shadowPercent: 5%;
+  }
+  83% {
+    --shadowPercent: 5%;
+  }
+  82% {
+    --shadowPercent: 5%;
+  }
+  81% {
+    --shadowPercent: 5%;
+  }
+  80% {
+    --shadowPercent: 5%;
+  }
+  79% {
+    --shadowPercent: 5%;
+  }
+  78% {
+    --shadowPercent: 5%;
+  }
+  77% {
+    --shadowPercent: 5%;
+  }
+  76% {
+    --shadowPercent: 5%;
+  }
+  75% {
+    --shadowPercent: 5%;
+  }
+  74% {
+    --shadowPercent: 5%;
+  }
+  73% {
+    --shadowPercent: 5%;
+  }
+  72% {
+    --shadowPercent: 5%;
+  }
+  71% {
+    --shadowPercent: 5%;
+  }
+  70% {
+    --shadowPercent: 5%;
+  }
+  69% {
+    --shadowPercent: 5%;
+  }
+  68% {
+    --shadowPercent: 5%;
+  }
+  67% {
+    --shadowPercent: 5%;
+  }
+  66% {
+    --shadowPercent: 5%;
+  }
+  65% {
+    --shadowPercent: 5%;
+  }
+  64% {
+    --shadowPercent: 5%;
+  }
+  63% {
+    --shadowPercent: 5%;
+  }
+  62% {
+    --shadowPercent: 5%;
+  }
+  61% {
+    --shadowPercent: 5%;
+  }
+  60% {
+    --shadowPercent: 5%;
+  }
+  59% {
+    --shadowPercent: 5%;
+  }
+  58% {
+    --shadowPercent: 5%;
+  }
+  57% {
+    --shadowPercent: 5%;
+  }
+  56% {
+    --shadowPercent: 5%;
+  }
+  55% {
+    --shadowPercent: 5%;
+  }
+  54% {
+    --shadowPercent: 5%;
+  }
+  53% {
+    --shadowPercent: 5%;
+  }
+  52% {
+    --shadowPercent: 5%;
+  }
+  51% {
+    --shadowPercent: 5%;
+  }
+  50% {
+    --shadowPercent: 5%;
+  }
+  49% {
+    --shadowPercent: 4.8571428571%;
+  }
+  48% {
+    --shadowPercent: 4.7142857143%;
+  }
+  47% {
+    --shadowPercent: 4.5714285714%;
+  }
+  46% {
+    --shadowPercent: 4.4285714286%;
+  }
+  45% {
+    --shadowPercent: 4.2857142857%;
+  }
+  44% {
+    --shadowPercent: 4.1428571429%;
+  }
+  43% {
+    --shadowPercent: 4%;
+  }
+  42% {
+    --shadowPercent: 3.8571428571%;
+  }
+  41% {
+    --shadowPercent: 3.7142857143%;
+  }
+  40% {
+    --shadowPercent: 3.5714285714%;
+  }
+  39% {
+    --shadowPercent: 3.4285714286%;
+  }
+  38% {
+    --shadowPercent: 3.2857142857%;
+  }
+  37% {
+    --shadowPercent: 3.1428571429%;
+  }
+  36% {
+    --shadowPercent: 3%;
+  }
+  35% {
+    --shadowPercent: 2.8571428571%;
+  }
+  34% {
+    --shadowPercent: 2.7142857143%;
+  }
+  33% {
+    --shadowPercent: 2.5714285714%;
+  }
+  32% {
+    --shadowPercent: 2.4285714286%;
+  }
+  31% {
+    --shadowPercent: 2.2857142857%;
+  }
+  30% {
+    --shadowPercent: 2.1428571429%;
+  }
+  29% {
+    --shadowPercent: 2%;
+  }
+  28% {
+    --shadowPercent: 1.8571428571%;
+  }
+  27% {
+    --shadowPercent: 1.7142857143%;
+  }
+  26% {
+    --shadowPercent: 1.5714285714%;
+  }
+  25% {
+    --shadowPercent: 1.4285714286%;
+  }
+  24% {
+    --shadowPercent: 1.2857142857%;
+  }
+  23% {
+    --shadowPercent: 1.1428571429%;
+  }
+  22% {
+    --shadowPercent: 1%;
+  }
+  21% {
+    --shadowPercent: 0.8571428571%;
+  }
+  20% {
+    --shadowPercent: 0.7142857143%;
+  }
+  19% {
+    --shadowPercent: 0.5714285714%;
+  }
+  18% {
+    --shadowPercent: 0.4285714286%;
+  }
+  17% {
+    --shadowPercent: 0.2857142857%;
+  }
+  16% {
+    --shadowPercent: 0.1428571429%;
+  }
+  15% {
+    --shadowPercent: 0%;
+  }
+  14% {
+    --shadowPercent: 0%;
+  }
+  13% {
+    --shadowPercent: 0%;
+  }
+  12% {
+    --shadowPercent: 0%;
+  }
+  11% {
+    --shadowPercent: 0%;
+  }
+  10% {
+    --shadowPercent: 0%;
+  }
+  9% {
+    --shadowPercent: 0%;
+  }
+  8% {
+    --shadowPercent: 0%;
+  }
+  7% {
+    --shadowPercent: 0%;
+  }
+  6% {
+    --shadowPercent: 0%;
+  }
+  5% {
+    --shadowPercent: 0%;
+  }
+  4% {
+    --shadowPercent: 0%;
+  }
+  3% {
+    --shadowPercent: 0%;
+  }
+  2% {
+    --shadowPercent: 0%;
+  }
+  1% {
+    --shadowPercent: 0%;
+  }
+}/*# sourceMappingURL=style.css.map */
