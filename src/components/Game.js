@@ -8,12 +8,12 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
     const [personLife, setPersonLife] = useState(3);
     const [pickedScores, setPickedScores] = useState(0);
     const [pickedKey, setPickedKey] = useState(0);
+    const [closedDoorMessage, setClosedDoorMessage] = useState(false);
     const [time, setTime] = useState(0);
     const [isKeyPressed, setIsKeyPressed] = useState({ pressed: null, key: null });
-    const [screamAudio, setScreamAudio] = useState(new Audio());
-    // const [audio, setAudio] = useState(new Audio("./sounds/darkness.mp3"));
-    // const [wingameSound, setWingameSound] = useState(new Audio("./sounds/wingame.wav"));
+    const [gameFinished, setGameFinished] = useState(false);
     const [audio, setAudio] = useState(new Audio());
+    const [screamAudio, setScreamAudio] = useState(new Audio());
 
     const [phisics, setPhisics] = useState({
         moveSpeed: 1,
@@ -144,7 +144,7 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
     const [int, setInt] = useState(0);
     useEffect(() => {
         const interval = setInterval(() => {
-            if (isKeyPressed.pressed) {
+            if (isKeyPressed.pressed && !gameFinished) {
                 setPhisics({ ...phisics, moveSpeed: phisics.defaultMoveSpeed });
                 switch (isKeyPressed.key) {
                     case "ArrowRight":
@@ -186,18 +186,21 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
 
     const [int2, setInt2] = useState(0);
     useEffect(() => {
-        const screamArray = ["./sounds/laugh1.mp3", "./sounds/laugh2.mp3", "./sounds/laugh3.mp3", "./sounds/laugh4.mp3",
-            "./sounds/scarrySound1.mp3", "./sounds/scarrySound2.mp3", "./sounds/iSeeYou.mp3"];
+        let interval;
+        if (!gameFinished) {
+            const screamArray = ["./sounds/laugh1.mp3", "./sounds/laugh2.mp3", "./sounds/laugh3.mp3", "./sounds/laugh4.mp3",
+                "./sounds/scarrySound1.mp3", "./sounds/scarrySound2.mp3", "./sounds/iSeeYou.mp3"];
 
-        const interval = setInterval(() => {
-            screamAudio.src = screamArray[Math.floor(Math.random() * 7)];
-            screamAudio.volume = 0.4;
-            screamAudio.play();
-            setInt2(int2 > 10 ? 0 : int2 + 1);
-        }, 20000);
+            interval = setInterval(() => {
+                screamAudio.src = screamArray[Math.floor(Math.random() * 7)];
+                screamAudio.volume = 0.4;
+                screamAudio.play();
+                setInt2(int2 > 10 ? 0 : int2 + 1);
+            }, 20000);
+        }
 
         return () => clearInterval(interval);
-    }, [int2]);
+    }, [int2, gameFinished]);
 
     useEffect(() => {
         if (personLife <= 0) {
@@ -206,14 +209,42 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
     }, [personLife])
 
 
+    useEffect(() => {
+        if (closedDoorMessage) {
+            const closed = new Audio("./sounds/closeddoor.wav");
+            closed.play();
+            setTimeout(() => {
+                setClosedDoorMessage(false);
+            }, 3500);
+        }
+    }, [closedDoorMessage])
 
     const winGame = () => {
-        setIsGameStarted(false);
-        setYouWin(true);
-        setGameOver(false);
-        audio.pause();
-        screamAudio.pause();
+        setGameFinished(true);
+        const shadow = document.querySelector(".shadow");
+        const person = document.getElementById("person");
+        const person2 = document.createElement("div");
+        person2.classList.add("main_object2");
+        person.insertAdjacentElement("afterend", person2);
+        shadow.classList.add("unhide_shadow");
+        setTimeout(() => {
+            shadow.remove();
+        }, 2500);
+        setTimeout(() => {
+            setIsGameStarted(false);
+            setYouWin(true);
+            setGameOver(false);
+        }, 9000);
     }
+    useEffect(() => {
+        if (gameFinished) {
+            const winsound = new Audio("./sounds/wingame2.wav");
+            winsound.play();
+            audio.pause();
+            screamAudio.pause();
+        }
+    }, [gameFinished])
+
     const gameOver = () => {
         audio.pause();
         screamAudio.pause();
@@ -222,6 +253,8 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
         setIsGameStarted(false);
     }
     const pickUpScore = (id) => {
+        const scr = new Audio("./sounds/pickscore.wav");
+        scr.play();
         const _scores = [...scores];
         _scores.find(x => x.data.id === id).data.picked = true;
         setPickedScores(pickedScores + 1);
@@ -229,16 +262,27 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
     }
 
     const pickUpLife = (id) => {
+        const heart = new Audio("./sounds/pickheart.wav");
+        heart.play();
         const _lifes = [...lifes];
         _lifes.find(x => x.data.id === id).data.picked = "true";
         setPersonLife(personLife + 1);
         setLifes(_lifes);
     }
     const pickUpKey = (id) => {
+        const key = new Audio("./sounds/pickkey.wav");
+        key.play();
         const _keys = [...keys];
         _keys.find(x => x.data.id === id).data.picked = true;
         setPickedKey(pickedKey + 1);
         setKeys(_keys);
+    }
+
+    const deathSound = () => {
+        if (personLife > 1) {
+            const death = new Audio("./sounds/death.wav");
+            death.play();
+        }
     }
 
     const moveRight = () => {
@@ -250,22 +294,23 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
         let left = _person.left;
 
         walls.forEach(wall => {
-            const wallBottom = parseInt(wall.style.height) + parseInt(wall.style.top);
-            const wallRight = parseInt(wall.style.width) + parseInt(wall.style.left);
-            const wallLeft = parseInt(wall.style.left);
-            const wallTop = parseInt(wall.style.top);
+            const wallBottom = parseInt(wall?.style?.height) + parseInt(wall?.style?.top);
+            const wallRight = parseInt(wall?.style?.width) + parseInt(wall?.style?.left);
+            const wallLeft = parseInt(wall?.style?.left);
+            const wallTop = parseInt(wall?.style?.top);
             if ((_person.top > wallTop && _person.top < wallBottom) && (_person.left <= wallRight && _person.left >= wallLeft)) {
                 left = 50;
                 _person.top = 250 - 20 / 2;
                 _phisics.moveSpeed = _phisics.defaultMoveSpeed;
                 setPersonLife(personLife - 1);
+                deathSound();
             }
         })
         scores.forEach(score => {
-            const scoreBottom = parseInt(score.style.height) + parseInt(score.style.top);
-            const scoreRight = parseInt(score.style.width) + parseInt(score.style.left);
-            const scoreLeft = parseInt(score.style.left);
-            const scoreTop = parseInt(score.style.top);
+            const scoreBottom = parseInt(score?.style?.height) + parseInt(score?.style?.top);
+            const scoreRight = parseInt(score?.style?.width) + parseInt(score?.style?.left);
+            const scoreLeft = parseInt(score?.style?.left);
+            const scoreTop = parseInt(score?.style?.top);
             if ((_person.top + _person.height > scoreTop && _person.top < scoreBottom) && (_person.left <= scoreRight && _person.left + _person.width >= scoreLeft)) {
                 pickUpScore(score.id);
             }
@@ -273,10 +318,10 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
 
         const keys = document.querySelectorAll(".key");
         keys.forEach(key => {
-            const keyBottom = parseInt(key.style.height) + parseInt(key.style.top);
-            const keyRight = parseInt(key.style.width) + parseInt(key.style.left);
-            const keyLeft = parseInt(key.style.left);
-            const keyTop = parseInt(key.style.top);
+            const keyBottom = parseInt(key?.style?.height) + parseInt(key?.style?.top);
+            const keyRight = parseInt(key?.style?.width) + parseInt(key?.style?.left);
+            const keyLeft = parseInt(key?.style?.left);
+            const keyTop = parseInt(key?.style?.top);
             if ((_person.top + _person.height > keyTop && _person.top < keyBottom) && (_person.left <= keyRight && _person.left + _person.width >= keyLeft)) {
                 pickUpKey(key.id);
             }
@@ -284,12 +329,21 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
 
         if (pickedKey > 0) {
             const door = document.querySelector(".door");
-            const doorBottom = parseInt(door.style.height) + parseInt(door.style.top);
-            const doorRight = parseInt(door.style.width) + parseInt(door.style.left);
-            const doorLeft = parseInt(door.style.left);
-            const doorTop = parseInt(door.style.top);
+            const doorBottom = parseInt(door?.style?.height) + parseInt(door?.style?.top);
+            const doorRight = parseInt(door?.style?.width) + parseInt(door?.style?.left);
+            const doorLeft = parseInt(door?.style?.left);
+            const doorTop = parseInt(door?.style?.top);
             if ((_person.top > doorTop && _person.top < doorBottom) && (_person.left <= doorRight && _person.left + _person.width >= doorLeft)) {
                 winGame();
+            }
+        } else {
+            const door = document.querySelector(".door");
+            const doorBottom = parseInt(door?.style?.height) + parseInt(door?.style?.top);
+            const doorRight = parseInt(door?.style?.width) + parseInt(door?.style?.left);
+            const doorLeft = parseInt(door?.style?.left);
+            const doorTop = parseInt(door?.style?.top);
+            if ((_person.top > doorTop && _person.top < doorBottom) && (_person.left <= doorRight && _person.left + _person.width >= doorLeft)) {
+                setClosedDoorMessage(true);
             }
         }
 
@@ -313,24 +367,25 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
 
         const walls = document.querySelectorAll(".wall");
         walls.forEach(wall => {
-            const wallBottom = parseInt(wall.style.height) + parseInt(wall.style.top);
-            const wallRight = parseInt(wall.style.width) + parseInt(wall.style.left);
-            const wallLeft = parseInt(wall.style.left);
-            const wallTop = parseInt(wall.style.top);
+            const wallBottom = parseInt(wall?.style?.height) + parseInt(wall?.style?.top);
+            const wallRight = parseInt(wall?.style?.width) + parseInt(wall?.style?.left);
+            const wallLeft = parseInt(wall?.style?.left);
+            const wallTop = parseInt(wall?.style?.top);
             if ((_person.top + _person.height > wallTop && _person.top < wallBottom) && (_person.left + _person.width > wallLeft && _person.left < wallRight)) {
                 left = 50;
                 _person.top = 250 - 20 / 2;
                 _phisics.moveSpeed = _phisics.defaultMoveSpeed;
                 setPersonLife(personLife - 1);
+                deathSound();
             }
         })
 
         const scores = document.querySelectorAll(".score");
         scores.forEach(score => {
-            const scoreBottom = parseInt(score.style.height) + parseInt(score.style.top);
-            const scoreRight = parseInt(score.style.width) + parseInt(score.style.left);
-            const scoreLeft = parseInt(score.style.left);
-            const scoreTop = parseInt(score.style.top);
+            const scoreBottom = parseInt(score?.style?.height) + parseInt(score?.style?.top);
+            const scoreRight = parseInt(score?.style?.width) + parseInt(score?.style?.left);
+            const scoreLeft = parseInt(score?.style?.left);
+            const scoreTop = parseInt(score?.style?.top);
             if ((_person.top + _person.height > scoreTop && _person.top < scoreBottom) && (_person.left <= scoreRight && _person.left + _person.width >= scoreLeft)) {
                 pickUpScore(score.id);
             }
@@ -338,22 +393,31 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
 
         const keys = document.querySelectorAll(".key");
         keys.forEach(key => {
-            const keyBottom = parseInt(key.style.height) + parseInt(key.style.top);
-            const keyRight = parseInt(key.style.width) + parseInt(key.style.left);
-            const keyLeft = parseInt(key.style.left);
-            const keyTop = parseInt(key.style.top);
+            const keyBottom = parseInt(key?.style?.height) + parseInt(key?.style?.top);
+            const keyRight = parseInt(key?.style?.width) + parseInt(key?.style?.left);
+            const keyLeft = parseInt(key?.style?.left);
+            const keyTop = parseInt(key?.style?.top);
             if ((_person.top + _person.height > keyTop && _person.top < keyBottom) && (_person.left <= keyRight && _person.left + _person.width >= keyLeft)) {
                 pickUpKey(key.id);
             }
         })
         if (pickedKey > 0) {
             const door = document.querySelector(".door");
-            const doorBottom = parseInt(door.style.height) + parseInt(door.style.top);
-            const doorRight = parseInt(door.style.width) + parseInt(door.style.left);
-            const doorLeft = parseInt(door.style.left);
-            const doorTop = parseInt(door.style.top);
+            const doorBottom = parseInt(door?.style?.height) + parseInt(door?.style?.top);
+            const doorRight = parseInt(door?.style?.width) + parseInt(door?.style?.left);
+            const doorLeft = parseInt(door?.style?.left);
+            const doorTop = parseInt(door?.style?.top);
             if ((_person.top > doorTop && _person.top < doorBottom) && (_person.left <= doorRight && _person.left + _person.width >= doorLeft)) {
                 winGame();
+            }
+        } else {
+            const door = document.querySelector(".door");
+            const doorBottom = parseInt(door?.style?.height) + parseInt(door?.style?.top);
+            const doorRight = parseInt(door?.style?.width) + parseInt(door?.style?.left);
+            const doorLeft = parseInt(door?.style?.left);
+            const doorTop = parseInt(door?.style?.top);
+            if ((_person.top > doorTop && _person.top < doorBottom) && (_person.left <= doorRight && _person.left + _person.width >= doorLeft)) {
+                setClosedDoorMessage(true);
             }
         }
 
@@ -380,24 +444,25 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
 
         const walls = document.querySelectorAll(".wall");
         walls.forEach(wall => {
-            const wallBottom = parseInt(wall.style.height) + parseInt(wall.style.top);
-            const wallRight = parseInt(wall.style.width) + parseInt(wall.style.left);
-            const wallLeft = parseInt(wall.style.left);
-            const wallTop = parseInt(wall.style.top);
+            const wallBottom = parseInt(wall?.style?.height) + parseInt(wall?.style?.top);
+            const wallRight = parseInt(wall?.style?.width) + parseInt(wall?.style?.left);
+            const wallLeft = parseInt(wall?.style?.left);
+            const wallTop = parseInt(wall?.style?.top);
             if ((_person.top > wallTop && _person.top < wallBottom) && (_person.left <= wallRight && _person.left + _person.width / 2 >= wallLeft)) {
                 left = 50;
                 _person.top = 250 - 20 / 2;
                 _phisics.moveSpeed = _phisics.defaultMoveSpeed;
                 setPersonLife(personLife - 1);
+                deathSound();
             }
         })
 
         const scores = document.querySelectorAll(".score");
         scores.forEach(score => {
-            const scoreBottom = parseInt(score.style.height) + parseInt(score.style.top);
-            const scoreRight = parseInt(score.style.width) + parseInt(score.style.left);
-            const scoreLeft = parseInt(score.style.left);
-            const scoreTop = parseInt(score.style.top);
+            const scoreBottom = parseInt(score?.style?.height) + parseInt(score?.style?.top);
+            const scoreRight = parseInt(score?.style?.width) + parseInt(score?.style?.left);
+            const scoreLeft = parseInt(score?.style?.left);
+            const scoreTop = parseInt(score?.style?.top);
             if ((_person.top + _person.height > scoreTop && _person.top < scoreBottom) && (_person.left <= scoreRight && _person.left >= scoreLeft)) {
                 pickUpScore(score.id);
             }
@@ -415,10 +480,10 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
         })
         const keys = document.querySelectorAll(".key");
         keys.forEach(key => {
-            const keyBottom = parseInt(key.style.height) + parseInt(key.style.top);
-            const keyRight = parseInt(key.style.width) + parseInt(key.style.left);
-            const keyLeft = parseInt(key.style.left);
-            const keyTop = parseInt(key.style.top);
+            const keyBottom = parseInt(key?.style?.height) + parseInt(key?.style?.top);
+            const keyRight = parseInt(key?.style?.width) + parseInt(key?.style?.left);
+            const keyLeft = parseInt(key?.style?.left);
+            const keyTop = parseInt(key?.style?.top);
             if ((_person.top > keyTop && _person.top < keyBottom) && (_person.left <= keyRight && _person.left + _person.width / 2 >= keyLeft)) {
                 pickUpKey(key.id);
             }
@@ -444,24 +509,25 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
 
         const walls = document.querySelectorAll(".wall");
         walls.forEach(wall => {
-            const wallBottom = parseInt(wall.style.height) + parseInt(wall.style.top);
-            const wallRight = parseInt(wall.style.width) + parseInt(wall.style.left);
-            const wallLeft = parseInt(wall.style.left);
-            const wallTop = parseInt(wall.style.top);
+            const wallBottom = parseInt(wall?.style?.height) + parseInt(wall?.style?.top);
+            const wallRight = parseInt(wall?.style?.width) + parseInt(wall?.style?.left);
+            const wallLeft = parseInt(wall?.style?.left);
+            const wallTop = parseInt(wall?.style?.top);
             if ((_person.top + _person.height > wallTop && _person.top < wallBottom) && (_person.left > wallLeft && _person.left < wallRight)) {
                 left = 50;
                 _person.top = 250 - 20 / 2;
                 _phisics.moveSpeed = _phisics.defaultMoveSpeed;
                 setPersonLife(personLife - 1);
+                deathSound();
             }
         })
 
         const scores = document.querySelectorAll(".score");
         scores.forEach(score => {
-            const scoreBottom = parseInt(score.style.height) + parseInt(score.style.top);
-            const scoreRight = parseInt(score.style.width) + parseInt(score.style.left);
-            const scoreLeft = parseInt(score.style.left);
-            const scoreTop = parseInt(score.style.top);
+            const scoreBottom = parseInt(score?.style?.height) + parseInt(score?.style?.top);
+            const scoreRight = parseInt(score?.style?.width) + parseInt(score?.style?.left);
+            const scoreLeft = parseInt(score?.style?.left);
+            const scoreTop = parseInt(score?.style?.top);
             if ((_person.top + _person.height > scoreTop && _person.top < scoreBottom) && (_person.left <= scoreRight && _person.left >= scoreLeft)) {
                 pickUpScore(score.id);
             }
@@ -478,10 +544,10 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
         })
         const keys = document.querySelectorAll(".key");
         keys.forEach(key => {
-            const keyBottom = parseInt(key.style.height) + parseInt(key.style.top);
-            const keyRight = parseInt(key.style.width) + parseInt(key.style.left);
-            const keyLeft = parseInt(key.style.left);
-            const keyTop = parseInt(key.style.top);
+            const keyBottom = parseInt(key?.style?.height) + parseInt(key?.style?.top);
+            const keyRight = parseInt(key?.style?.width) + parseInt(key?.style?.left);
+            const keyLeft = parseInt(key?.style?.left);
+            const keyTop = parseInt(key?.style?.top);
             if ((_person.top + _person.height > keyTop && _person.top < keyBottom) && (_person.left <= keyRight && _person.left + _person.width / 2 >= keyLeft)) {
                 pickUpKey(key.id);
             }
@@ -509,24 +575,25 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
 
         const walls = document.querySelectorAll(".wall");
         walls.forEach(wall => {
-            const wallBottom = parseInt(wall.style.height) + parseInt(wall.style.top);
-            const wallRight = parseInt(wall.style.width) + parseInt(wall.style.left);
-            const wallLeft = parseInt(wall.style.left);
-            const wallTop = parseInt(wall.style.top);
+            const wallBottom = parseInt(wall?.style?.height) + parseInt(wall?.style?.top);
+            const wallRight = parseInt(wall?.style?.width) + parseInt(wall?.style?.left);
+            const wallLeft = parseInt(wall?.style?.left);
+            const wallTop = parseInt(wall?.style?.top);
             if (((_person.left > wallLeft && _person.left < wallRight) && (_person.top <= wallBottom && _person.top > wallTop))) {
                 _person.left = 50;
                 top = 250 - 20 / 2;
                 _phisics.moveSpeed = _phisics.defaultMoveSpeed;
                 setPersonLife(personLife - 1);
+                deathSound();
             }
         })
 
         const scores = document.querySelectorAll(".score");
         scores.forEach(score => {
-            const scoreBottom = parseInt(score.style.height) + parseInt(score.style.top);
-            const scoreRight = parseInt(score.style.width) + parseInt(score.style.left);
-            const scoreLeft = parseInt(score.style.left);
-            const scoreTop = parseInt(score.style.top);
+            const scoreBottom = parseInt(score?.style?.height) + parseInt(score?.style?.top);
+            const scoreRight = parseInt(score?.style?.width) + parseInt(score?.style?.left);
+            const scoreLeft = parseInt(score?.style?.left);
+            const scoreTop = parseInt(score?.style?.top);
             if (((_person.left > scoreLeft && _person.left < scoreRight) && (_person.top <= scoreBottom && _person.top + _person.height > scoreTop))) {
                 pickUpScore(score.id);
             }
@@ -543,10 +610,10 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
         })
         const keys = document.querySelectorAll(".key");
         keys.forEach(key => {
-            const keyBottom = parseInt(key.style.height) + parseInt(key.style.top);
-            const keyRight = parseInt(key.style.width) + parseInt(key.style.left);
-            const keyLeft = parseInt(key.style.left);
-            const keyTop = parseInt(key.style.top);
+            const keyBottom = parseInt(key?.style?.height) + parseInt(key?.style?.top);
+            const keyRight = parseInt(key?.style?.width) + parseInt(key?.style?.left);
+            const keyLeft = parseInt(key?.style?.left);
+            const keyTop = parseInt(key?.style?.top);
             if (((_person.left > keyLeft && _person.left < keyRight) && (_person.top <= keyBottom && _person.top > keyTop))) {
                 pickUpKey(key.id);
             }
@@ -554,12 +621,21 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
 
         if (pickedKey > 0) {
             const door = document.querySelector(".door");
-            const doorBottom = parseInt(door.style.height) + parseInt(door.style.top);
-            const doorRight = parseInt(door.style.width) + parseInt(door.style.left);
-            const doorLeft = parseInt(door.style.left);
-            const doorTop = parseInt(door.style.top);
+            const doorBottom = parseInt(door?.style?.height) + parseInt(door?.style?.top);
+            const doorRight = parseInt(door?.style?.width) + parseInt(door?.style?.left);
+            const doorLeft = parseInt(door?.style?.left);
+            const doorTop = parseInt(door?.style?.top);
             if (((_person.left > doorLeft && _person.left < doorRight) && (_person.top <= doorBottom && _person.top > doorTop))) {
                 winGame();
+            }
+        } else {
+            const door = document.querySelector(".door");
+            const doorBottom = parseInt(door?.style?.height) + parseInt(door?.style?.top);
+            const doorRight = parseInt(door?.style?.width) + parseInt(door?.style?.left);
+            const doorLeft = parseInt(door?.style?.left);
+            const doorTop = parseInt(door?.style?.top);
+            if (((_person.left > doorLeft && _person.left < doorRight) && (_person.top <= doorBottom && _person.top > doorTop))) {
+                setClosedDoorMessage(true);
             }
         }
 
@@ -583,24 +659,25 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
 
         const walls = document.querySelectorAll(".wall");
         walls.forEach(wall => {
-            const wallBottom = parseInt(wall.style.height) + parseInt(wall.style.top);
-            const wallRight = parseInt(wall.style.width) + parseInt(wall.style.left);
-            const wallLeft = parseInt(wall.style.left);
-            const wallTop = parseInt(wall.style.top);
+            const wallBottom = parseInt(wall?.style?.height) + parseInt(wall?.style?.top);
+            const wallRight = parseInt(wall?.style?.width) + parseInt(wall?.style?.left);
+            const wallLeft = parseInt(wall?.style?.left);
+            const wallTop = parseInt(wall?.style?.top);
             if (((_person.left + _person.width > wallLeft && _person.left < wallRight) && (_person.top <= wallBottom && _person.top > wallTop))) {
                 _person.left = 50;
                 top = 250 - 20 / 2;
                 _phisics.moveSpeed = _phisics.defaultMoveSpeed;
                 setPersonLife(personLife - 1);
+                deathSound();
             }
         })
 
         const scores = document.querySelectorAll(".score");
         scores.forEach(score => {
-            const scoreBottom = parseInt(score.style.height) + parseInt(score.style.top);
-            const scoreRight = parseInt(score.style.width) + parseInt(score.style.left);
-            const scoreLeft = parseInt(score.style.left);
-            const scoreTop = parseInt(score.style.top);
+            const scoreBottom = parseInt(score?.style?.height) + parseInt(score?.style?.top);
+            const scoreRight = parseInt(score?.style?.width) + parseInt(score?.style?.left);
+            const scoreLeft = parseInt(score?.style?.left);
+            const scoreTop = parseInt(score?.style?.top);
             if (((_person.left > scoreLeft && _person.left < scoreRight) && (_person.top <= scoreBottom && _person.top + _person.height > scoreTop))) {
                 pickUpScore(score.id);
             }
@@ -619,10 +696,10 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
 
         const keys = document.querySelectorAll(".key");
         keys.forEach(key => {
-            const keyBottom = parseInt(key.style.height) + parseInt(key.style.top);
-            const keyRight = parseInt(key.style.width) + parseInt(key.style.left);
-            const keyLeft = parseInt(key.style.left);
-            const keyTop = parseInt(key.style.top);
+            const keyBottom = parseInt(key?.style?.height) + parseInt(key?.style?.top);
+            const keyRight = parseInt(key?.style?.width) + parseInt(key?.style?.left);
+            const keyLeft = parseInt(key?.style?.left);
+            const keyTop = parseInt(key?.style?.top);
             if (((_person.left > keyLeft && _person.left < keyRight) && (_person.top <= keyBottom && _person.top > keyTop))) {
                 pickUpKey(key.id);
             }
@@ -630,12 +707,21 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
 
         if (pickedKey > 0) {
             const door = document.querySelector(".door");
-            const doorBottom = parseInt(door.style.height) + parseInt(door.style.top);
-            const doorRight = parseInt(door.style.width) + parseInt(door.style.left);
-            const doorLeft = parseInt(door.style.left);
-            const doorTop = parseInt(door.style.top);
+            const doorBottom = parseInt(door?.style?.height) + parseInt(door?.style?.top);
+            const doorRight = parseInt(door?.style?.width) + parseInt(door?.style?.left);
+            const doorLeft = parseInt(door?.style?.left);
+            const doorTop = parseInt(door?.style?.top);
             if (((_person.left > doorLeft && _person.left < doorRight) && (_person.top <= doorBottom && _person.top > doorTop))) {
                 winGame();
+            }
+        } else {
+            const door = document.querySelector(".door");
+            const doorBottom = parseInt(door?.style?.height) + parseInt(door?.style?.top);
+            const doorRight = parseInt(door?.style?.width) + parseInt(door?.style?.left);
+            const doorLeft = parseInt(door?.style?.left);
+            const doorTop = parseInt(door?.style?.top);
+            if (((_person.left > doorLeft && _person.left < doorRight) && (_person.top <= doorBottom && _person.top > doorTop))) {
+                setClosedDoorMessage(true);
             }
         }
 
@@ -662,34 +748,35 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
 
         const walls = document.querySelectorAll(".wall");
         walls.forEach(wall => {
-            const wallBottom = parseInt(wall.style.height) + parseInt(wall.style.top);
-            const wallRight = parseInt(wall.style.width) + parseInt(wall.style.left);
-            const wallLeft = parseInt(wall.style.left);
-            const wallTop = parseInt(wall.style.top);
+            const wallBottom = parseInt(wall?.style?.height) + parseInt(wall?.style?.top);
+            const wallRight = parseInt(wall?.style?.width) + parseInt(wall?.style?.left);
+            const wallLeft = parseInt(wall?.style?.left);
+            const wallTop = parseInt(wall?.style?.top);
             if (((_person.left > wallLeft && _person.left < wallRight) && (_person.top <= wallBottom && _person.top + _person.width > wallTop))) {
                 _person.left = 50;
                 top = 250 - 20 / 2;
                 _phisics.moveSpeed = _phisics.defaultMoveSpeed;
                 setPersonLife(personLife - 1);
+                deathSound();
             }
         })
 
         const scores = document.querySelectorAll(".score");
         scores.forEach(score => {
-            const scoreBottom = parseInt(score.style.height) + parseInt(score.style.top);
-            const scoreRight = parseInt(score.style.width) + parseInt(score.style.left);
-            const scoreLeft = parseInt(score.style.left);
-            const scoreTop = parseInt(score.style.top);
+            const scoreBottom = parseInt(score?.style?.height) + parseInt(score?.style?.top);
+            const scoreRight = parseInt(score?.style?.width) + parseInt(score?.style?.left);
+            const scoreLeft = parseInt(score?.style?.left);
+            const scoreTop = parseInt(score?.style?.top);
             if (((_person.left > scoreLeft && _person.left < scoreRight) && (_person.top <= scoreBottom && _person.top + _person.width > scoreTop))) {
                 pickUpScore(score.id);
             }
         })
         const keys = document.querySelectorAll(".key");
         keys.forEach(key => {
-            const keyBottom = parseInt(key.style.height) + parseInt(key.style.top);
-            const keyRight = parseInt(key.style.width) + parseInt(key.style.left);
-            const keyLeft = parseInt(key.style.left);
-            const keyTop = parseInt(key.style.top);
+            const keyBottom = parseInt(key?.style?.height) + parseInt(key?.style?.top);
+            const keyRight = parseInt(key?.style?.width) + parseInt(key?.style?.left);
+            const keyLeft = parseInt(key?.style?.left);
+            const keyTop = parseInt(key?.style?.top);
             if (((_person.left + _person.width > keyLeft && _person.left < keyRight) && (_person.top <= keyBottom && _person.top + _person.width > keyTop))) {
                 pickUpKey(key.id);
             }
@@ -715,24 +802,25 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
 
         const walls = document.querySelectorAll(".wall");
         walls.forEach(wall => {
-            const wallBottom = parseInt(wall.style.height) + parseInt(wall.style.top);
-            const wallRight = parseInt(wall.style.width) + parseInt(wall.style.left);
-            const wallLeft = parseInt(wall.style.left);
-            const wallTop = parseInt(wall.style.top);
+            const wallBottom = parseInt(wall?.style?.height) + parseInt(wall?.style?.top);
+            const wallRight = parseInt(wall?.style?.width) + parseInt(wall?.style?.left);
+            const wallLeft = parseInt(wall?.style?.left);
+            const wallTop = parseInt(wall?.style?.top);
             if (((_person.left > wallLeft && _person.left < wallRight) && (_person.top <= wallBottom && _person.top + _person.height > wallTop))) {
                 _person.left = 50;
                 top = 250 - 20 / 2;
                 _phisics.moveSpeed = _phisics.defaultMoveSpeed;
                 setPersonLife(personLife - 1);
+                deathSound();
             }
         })
 
         const scores = document.querySelectorAll(".score");
         scores.forEach(score => {
-            const scoreBottom = parseInt(score.style.height) + parseInt(score.style.top);
-            const scoreRight = parseInt(score.style.width) + parseInt(score.style.left);
-            const scoreLeft = parseInt(score.style.left);
-            const scoreTop = parseInt(score.style.top);
+            const scoreBottom = parseInt(score?.style?.height) + parseInt(score?.style?.top);
+            const scoreRight = parseInt(score?.style?.width) + parseInt(score?.style?.left);
+            const scoreLeft = parseInt(score?.style?.left);
+            const scoreTop = parseInt(score?.style?.top);
             if (((_person.left > scoreLeft && _person.left < scoreRight) && (_person.top <= scoreBottom && _person.top + _person.width > scoreTop))) {
                 pickUpScore(score.id);
             }
@@ -740,10 +828,10 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
 
         const keys = document.querySelectorAll(".key");
         keys.forEach(key => {
-            const keyBottom = parseInt(key.style.height) + parseInt(key.style.top);
-            const keyRight = parseInt(key.style.width) + parseInt(key.style.left);
-            const keyLeft = parseInt(key.style.left);
-            const keyTop = parseInt(key.style.top);
+            const keyBottom = parseInt(key?.style?.height) + parseInt(key?.style?.top);
+            const keyRight = parseInt(key?.style?.width) + parseInt(key?.style?.left);
+            const keyLeft = parseInt(key?.style?.left);
+            const keyTop = parseInt(key?.style?.top);
             if (((_person.left + _person.width > keyLeft && _person.left < keyRight) && (_person.top <= keyBottom && _person.top + _person.width > keyTop))) {
                 pickUpKey(key.id);
             }
@@ -767,8 +855,8 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
 
     const animateWallHorisontally = (id, from, to, speed) => {
         const wall = document.getElementById(id);
-        const dataAnimate = wall.getAttribute("data-animate");
-        const wallLeft = parseFloat(wall.style.left);
+        const dataAnimate = wall?.getAttribute("data-animate");
+        const wallLeft = parseFloat(wall?.style?.left);
         if (dataAnimate === "-1") {
             wall.style.left = (wallLeft + speed) + "px";
             if (wallLeft <= to) {
@@ -784,8 +872,8 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
     }
     const animateWallVertically = (id, from, to, speed) => {
         const wall = document.getElementById(id);
-        const dataAnimate = wall.getAttribute("data-animate");
-        const wallTop = parseFloat(wall.style.top);
+        const dataAnimate = wall?.getAttribute("data-animate");
+        const wallTop = parseFloat(wall?.style?.top);
         if (dataAnimate === "-1") {
             wall.style.top = (wallTop + speed) + "px";
             if (wallTop >= to) {
@@ -835,6 +923,11 @@ const Game = ({ setIsGameStarted, setGameOver, setYouWin }) => {
                 </div>
             </div>
             <div className="board_container">
+                {closedDoorMessage && (
+                    <div className="closeddoor_message">
+                        შესვლას თუ ცდილობ, გასაღები გაქვს? 😈
+                    </div>
+                )}
                 <div className='board' style={boardObject}>
                     <div id='person' className="main_object" style={person && person}>
                         <div className="shadow"></div>

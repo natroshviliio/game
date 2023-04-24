@@ -1,6 +1,13 @@
 import React from 'react'
 
 const Launch = ({ setIsGameStarted }) => {
+
+    const startGame = async () => {
+        const start = new Audio("./sounds/startgame.wav");
+        await start.play();
+        setIsGameStarted(true);
+    }
+
     return (
         <div className="launch">
             <div className="introduction">
@@ -38,11 +45,14 @@ const Launch = ({ setIsGameStarted }) => {
                     <br />
                     <br />
                     3 მცდელობა გაქვს, მაგრამ შეგიძლია მეოთხე მცდელობის მოპოვება, თუმცა უნდა ეძიო მას!
-                    ნუ შეეხები კედლებს, მათაც ეს უნდათ...
+                    თუ მიეყრდნობი კედლებს, ისინი გშთანთქავენ...
+                    <br />
+                    <br />
+                    გასაღები სადღაც რომელიღაც დერეფანში იმალება, დავტკბები იმის ყურებით როგორ შეგიწირავს მისი ძებნა💀.
                 </div>
             </div>
             <div className="carrier">
-                <button className="carrier_button" onClick={() => setIsGameStarted(true)}>დაწყება</button>
+                <button className="carrier_button" onClick={startGame}>დაწყება</button>
             </div>
         </div>
     )

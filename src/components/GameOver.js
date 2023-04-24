@@ -1,7 +1,15 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 const GameOver = ({ setIsGameStarted, setGameOver, setYouWin }) => {
+
+    useEffect(() => {
+        const gm = new Audio("./sounds/gameover.wav");
+        gm.play();
+    }, [])
+
     const tryAgain = () => {
+        const start = new Audio("./sounds/startgame.wav");
+        start.play();
         setIsGameStarted(true);
         setGameOver(false);
         setYouWin(false);

@@ -29,6 +29,25 @@ body {
 		box-shadow: -5px -5px 20px #2d404e, 5px 5px 20px #0c1318;
 		position: relative;
 		overflow: hidden;
+		.main_object2 {
+			width: 20px;
+			height: 20px;
+			right: 20px;
+			top: 20px;
+			background-color: #124d9a;
+			box-shadow: 0 0 7px 4px #346eba;
+			position: absolute;
+			border-radius: 50%;
+			animation-name: shiningSoul2;
+			animation-duration: 1s;
+			animation-iteration-count: infinite;
+			animation-direction: alternate;
+			animation-delay: linear;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			z-index: 999;
+		}
 		.main_object {
 			background-color: #f4dc57;
 			box-shadow: 0 0 7px 4px #fdef9f;
@@ -53,6 +72,11 @@ body {
 				animation-duration: 10s;
 				animation-iteration-count: infinite;
 				animation-direction: alternate;
+			}
+			.unhide_shadow {
+				animation-name: unhideShadow;
+				animation-duration: 2.5s;
+				animation-direction: linear;
 			}
 		}
 		.wall {
@@ -218,7 +242,7 @@ body {
 			padding: 10px;
 			overflow-y: auto;
 			font-family: 'BPG Banner ExtraSquare Caps', sans-serif;
-			font-size: 1rem;
+			font-size: 0.99rem;
 			color: #415c70;
 			.introduction_border_image {
 				width: 35%;
@@ -384,6 +408,55 @@ body {
 	}
 }
 
+.restriction_message {
+	padding: 1.4rem;
+	font-size: 2rem;
+	font-family: 'BPG Banner ExtraSquare Caps', sans-serif;
+	background-color: rgba(0, 0, 0, 0.3);
+	color: white;
+	letter-spacing: 1px;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	display: flex;
+	opacity: 0;
+	justify-content: center;
+	align-items: center;
+	transform: translate(-50%, -50%);
+	animation-name: animRestriction;
+	animation-duration: 2s;
+	animation-delay: linear;
+	z-index: 9999;
+}
+.closeddoor_message {
+	padding: 1.4rem;
+	font-size: 1.5rem;
+	font-family: 'BPG Banner ExtraSquare Caps', sans-serif;
+	background-color: rgba(0, 0, 0, 0.3);
+	color: white;
+	letter-spacing: 1px;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 9999;
+}
+
+@keyframes animRestriction {
+	from {
+		width: 300px;
+		height: 70px;
+		opacity: 1;
+		border-radius: 70px;
+	}
+	to {
+		width: 100vw;
+		height: 100vh;
+		opacity: 0;
+		border-radius: 0;
+	}
+}
+
 @keyframes screenWinAnim {
 	from {
 		opacity: 0;
@@ -398,6 +471,14 @@ body {
 	}
 	to {
 		box-shadow: 0 0 7px 4px #fdef9f;
+	}
+}
+@keyframes shiningSou2 {
+	from {
+		box-shadow: 0 0 3px 4px #346eba;
+	}
+	to {
+		box-shadow: 0 0 7px 4px #346eba;
 	}
 }
 
@@ -452,5 +533,14 @@ body {
 				--shadowPercent: #{($i - 15) / 7 * 1%};
 			}
 		}
+	}
+}
+
+@keyframes unhideShadow {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
 	}
 }

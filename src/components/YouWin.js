@@ -118,7 +118,7 @@ const YouWin = () => {
                     if (symbolCounter < _dialogText.length) {
                         _dialog.find(x => x.id === dialog[int].id).text += _dialogText[symbolCounter];
                         symbolCounter++;
-                        if (int + 1 >= 6) {
+                        if (int + 1 > 6) {
                             setShowDialog([..._dialog].filter((x, i) => i > 0));
                         } else {
                             setShowDialog([..._dialog]);
@@ -128,7 +128,7 @@ const YouWin = () => {
                     }
                 }, 7000 / _dialogText.length);
                 setInt(int + 1);
-                if (int + 1 >= 6) {
+                if (int + 1 > 6) {
                     setShowDialog([..._dialog].filter((x, i) => i > 0));
                 } else {
                     setShowDialog([..._dialog]);
